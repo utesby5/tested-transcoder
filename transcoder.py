@@ -23,8 +23,6 @@ def non_zero_min(values):
 
 class Transcoder(object):
 
-    # name of the share defined in virtualbox that will contain input/output video
-    VBOX_SHARE_NAME = 'transcoder'
     # path to mount the virtual box share
     TRANSCODER_ROOT = "/media/transcoder"
     # directory containing new video to transcode
@@ -71,27 +69,6 @@ class Transcoder(object):
         out = subprocess.check_output(args=args, stderr=subprocess.STDOUT)
         return out
 
-    def mount_share(self):
-        """
-        Mount the VBox share if it's not already mounted.
-        Returns True if mounted, otherwise False.
-        """
-        out = self.execute('mount')
-        if '%s type vboxsf' % self.TRANSCODER_ROOT in out:
-            return True
-        # attempt to mount
-        uid, gid = os.getuid(), os.getgid()
-        command = 'sudo mount -t vboxsf -o uid=%s,gid=%s %s %s' % (
-            uid, gid, self.VBOX_SHARE_NAME, self.TRANSCODER_ROOT)
-        try:
-            self.execute(command)
-        except subprocess.CalledProcessError as ex:
-            msg = 'Unable to mount Virtual Box Share: %s' % ex.output
-            sys.stdout.write(msg)
-            sys.stdout.flush()
-            return False
-        return True
-
     def setup_logging(self):
         self.logger = logging.getLogger('transcoder')
         self.logger.setLevel(logging.DEBUG)
@@ -107,8 +84,6 @@ class Transcoder(object):
         dirs = (self.INPUT_DIRECTORY, self.WORK_DIRECTORY,
                 self.OUTPUT_DIRECTORY, self.COMPLETED_DIRECTORY)
         if not all(map(os.path.exists, dirs)):
-            if not self.mount_share():
-                return False
             for path in dirs:
                 if not os.path.exists(path):
                     try:
