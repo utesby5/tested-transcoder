@@ -20,7 +20,9 @@ To rip discs, first use MakeMKV to rip only the movie, audio tracks, and subtitl
 5. Build the Docker image:
     `docker build -t excape/tested-transcoder .`
 6. Start a Docker container:
+    ```
         docker run -d --name tested-transcoder -v /custom/folder:/media/transcoder excape/tested-transcoder --preset medium
+    ```
     Replace `/custom/folder` with the new folder from step 4. `/media/transcoder` must not be changed.
     
     `--preset` is optional and determines the quality of the resulting video. Faster means faster transcoding, but lower quality, and slower means greater quality, but slower transcoding. See the [video_transcoding README](https://github.com/donmelton/video_transcoding#understanding-the-x264-preset-system) for more info. (default: `medium`)
