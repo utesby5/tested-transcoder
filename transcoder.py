@@ -35,7 +35,7 @@ class Transcoder(object):
     # directory contained the compressed outputs
     OUTPUT_DIRECTORY = TRANSCODER_ROOT + '/output'
     # standard options for the transcode-video script
-    TRANSCODE_OPTIONS = '--mkv --slow --allow-dts --allow-ac3 --copy-all-ac3 --single --no-auto-burn'
+    TRANSCODE_OPTIONS = '--preset medium --no-auto-burn'
     # number of seconds a file must remain unmodified in the INPUT_DIRECTORY
     # before it is considered done copying. increase this value for more
     # tolerance on bad network connections.
@@ -318,7 +318,7 @@ class Transcoder(object):
             title = title.replace('"', '')
             self.logger.info('Adding audio track #%s with title: %s',
                              track['number'], title)
-            additional_tracks.append('--add-audio %s,"%s"' % (
+            additional_tracks.append('--add-audio %s="%s"' % (
                 track['number'], title.replace('"', '')))
 
         return ' '.join(additional_tracks)
