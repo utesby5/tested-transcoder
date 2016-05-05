@@ -88,6 +88,8 @@ class Transcoder(object):
                 if not os.path.exists(path):
                     try:
                         os.mkdir(path)
+                        if (path == self.INPUT_DIRECTORY):
+                            os.chmod(path, 511) #chmod 777
                     except OSError as ex:
                         msg = 'Cannot create directory "%s": %s' % (
                             path, ex.strerror)
