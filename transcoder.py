@@ -202,7 +202,7 @@ class Transcoder(object):
         crop_re = r'[0-9]+:[0-9]+:[0-9]+:[0-9]+'
         name = os.path.basename(path)
         self.logger.info('Detecting crop for input "%s"', name)
-        command = 'detect-crop.sh --values-only "%s"' % path
+        command = 'detect-crop --values-only "%s"' % path
         try:
             out = self.execute(command)
         except subprocess.CalledProcessError as ex:
@@ -242,7 +242,7 @@ class Transcoder(object):
                 os.unlink(workpath)
 
         command_parts = [
-            'transcode-video.sh',
+            'transcode-video',
             '--crop %s' % crop,
             self.parse_audio_tracks(meta),
             self.parse_subtitle_tracks(meta),
