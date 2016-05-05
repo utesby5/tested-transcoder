@@ -10,4 +10,4 @@ WORKDIR /src
 
 COPY transcoder.py /src/
 RUN chmod +x transcoder.py
-CMD python transcoder.py
+ENTRYPOINT ["python", "transcoder.py"]

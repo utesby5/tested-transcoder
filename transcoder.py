@@ -9,6 +9,7 @@ import signal
 import subprocess
 import sys
 import time
+import argparse
 
 
 def non_zero_min(values):
@@ -35,7 +36,9 @@ class Transcoder(object):
     # directory contained the compressed outputs
     OUTPUT_DIRECTORY = TRANSCODER_ROOT + '/output'
     # standard options for the transcode-video script
-    TRANSCODE_OPTIONS = '--preset medium --no-auto-burn'
+    TRANSCODE_OPTIONS = '--no-auto-burn'
+    # default quality preset for the transcode-video script
+    TRANSCODE_DEFAULT_PRESET = 'medium'
     # number of seconds a file must remain unmodified in the INPUT_DIRECTORY
     # before it is considered done copying. increase this value for more
     # tolerance on bad network connections.
@@ -246,6 +249,7 @@ class Transcoder(object):
             '--crop %s' % crop,
             self.parse_audio_tracks(meta),
             self.parse_subtitle_tracks(meta),
+            self.parse_preset(),
             self.TRANSCODE_OPTIONS,
             '--output "%s"' % output,
             '"%s"' % path
@@ -322,7 +326,15 @@ class Transcoder(object):
                 track['number'], title.replace('"', '')))
 
         return ' '.join(additional_tracks)
-
+        
+    def parse_preset(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--preset")
+        args = parser.parse_args()
+        if (args.preset):
+            return '--preset ' + args.preset
+        return '--preset ' + self.TRANSCODE_DEFAULT_PRESET
+    
 
 if __name__ == '__main__':
     transcoder = Transcoder()
