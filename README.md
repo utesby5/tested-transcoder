@@ -24,6 +24,8 @@ To rip discs, first use MakeMKV to rip only the movie, audio tracks, and subtitl
     Replace `/custom/folder` with the new folder from step 4. `/media/transcoder` must not be changed.
     
     `--preset` is optional and determines the quality of the resulting video. Faster means faster transcoding, but lower quality, and slower means greater quality, but slower transcoding. See the [video_transcoding README](https://github.com/donmelton/video_transcoding#understanding-the-x264-preset-system) for more info. (default: `medium`)
+    
+    Replace `--preset medium` with `--quick` to use a performance optimized preset
 7. When the container startet correctly, the folders `input`, `output`, `work` and `completed-originals` should appear in the target directory (your folder created in step 4)
 
 ## Usage

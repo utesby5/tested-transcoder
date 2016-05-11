@@ -330,10 +330,13 @@ class Transcoder(object):
     def parse_preset(self):
         parser = argparse.ArgumentParser()
         parser.add_argument("--preset")
+        parser.add_argument("--quick", action='store_true')
         args = parser.parse_args()
-        if (args.preset):
-            return '--preset ' + args.preset
-        return '--preset ' + self.TRANSCODE_DEFAULT_PRESET
+        if (args.quick):
+            return '--quick'
+        preset = '--preset '
+        preset += args.preset if args.preset else self.TRANSCODE_DEFAULT_PRESET
+        return preset
     
 
 if __name__ == '__main__':
