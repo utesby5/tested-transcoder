@@ -18,8 +18,10 @@ To rip discs, first use MakeMKV to rip only the movie, audio tracks, and subtitl
 ## Usage
 1. Use MakeMKV to rip the Bluray / DVD
 2. Start a Docker container:
+    ```
         docker run -d --name tested-transcoder -v /custom/folder:/media/transcoder excape/tested-transcoder --preset medium
-    Replace `/custom/folder` with the new folder from step 4. `/media/transcoder` must not be changed.
+    ```
+    Replace `/custom/folder` with the new folder. `/media/transcoder` must not be changed.
 
     If this doesn't work, try building the image manually (see below).
     
@@ -30,7 +32,7 @@ To rip discs, first use MakeMKV to rip only the movie, audio tracks, and subtitl
 4. Starting your encodes is as easy as dragging a video from MakeMKV into the 'input' folder.
 5. When the encode is in progress, you can check in on its progress by looking at the end of the log in the 'work' folder.
 6. When the encodes are complete, the new, better compressed video will be in the 'output' folder and the original source MKV will be in the 'completed-originals' folder. After you've confirmed subtitles and audio tracks are correct, you can safely delete the large original file.
-6. Enjoy your new, much smaller MKV in your favorite media player.
+7. Enjoy your new, much smaller MKV in your favorite media player.
 
 ## Build manually
     git clone https://github.com/Excape/tested-transcoder.git
