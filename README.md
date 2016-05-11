@@ -11,26 +11,28 @@ To rip discs, first use MakeMKV to rip only the movie, audio tracks, and subtitl
 * Git - http://git-scm.com/downloads
 * MakeMKV - http://www.makemkv.com/download/
 
-## Installation Instructions
-
+## Installation
 1. Install the prerequisites.
-2. Navigate to your Documents folder in the terminal/command line and type `git clone https://github.com/Excape/tested-transcoder`
-3. Switch to the 'tested-transcoder'
-4. Create a folder where you will copy source videos to and collect transcoded videos from. (We use `/custom/folder` in this example)
-5. Build the Docker image:
-    `docker build -t excape/tested-transcoder .`
-6. Start a Docker container:
-        docker run -d --name tested-transcoder -v /custom/folder:/media/transcoder excape/tested-transcoder --preset medium
-    Replace `/custom/folder` with the new folder from step 4. `/media/transcoder` must not be changed.
-    
-    `--preset` is optional and determines the quality of the resulting video. Faster means faster transcoding, but lower quality, and slower means greater quality, but slower transcoding. See the [video_transcoding README](https://github.com/donmelton/video_transcoding#understanding-the-x264-preset-system) for more info. (default: `medium`)
-    
-    Replace `--preset medium` with `--quick` to use a performance optimized preset
-7. When the container startet correctly, the folders `input`, `output`, `work` and `completed-originals` should appear in the target directory (your folder created in step 4)
+2. Create a folder where you will copy source videos to and collect transcoded videos from. (We use `/custom/folder` in this example)
 
 ## Usage
+1. Use MakeMKV to rip the Bluray / DVD
+2. Start a Docker container:
+        docker run -d --name tested-transcoder -v /custom/folder:/media/transcoder excape/tested-transcoder --preset medium
+    Replace `/custom/folder` with the new folder from step 4. `/media/transcoder` must not be changed.
 
-1. Starting your encodes is as easy as dragging a video from MakeMKV into the 'input' folder.
-2. When the encode is in progress, you can check in on its progress by looking at the end of the log in the 'work' folder.
-3. When the encodes are complete, the new, better compressed video will be in the 'output' folder and the original source MKV will be in the 'completed-originals' folder. After you've confirmed subtitles and audio tracks are correct, you can safely delete the large original file.
-4. Enjoy your new, much smaller MKV in your favorite media player.
+    If this doesn't work, try building the image manually (see below).
+    
+    `--preset` is optional and determines the quality of the resulting video. Faster means faster transcoding, but lower quality, and slower means greater quality, but slower transcoding. See the [video_transcoding README](https://github.com/donmelton/video_transcoding#understanding-the-x264-preset-system) for more info. (default: `medium`)
+
+    Replace `--preset medium` with `--quick` to use a performance optimized preset.
+3. When the container startet correctly, the folders `input`, `output`, `work` and `completed-originals` should appear in the target directory (your folder created before)
+4. Starting your encodes is as easy as dragging a video from MakeMKV into the 'input' folder.
+5. When the encode is in progress, you can check in on its progress by looking at the end of the log in the 'work' folder.
+6. When the encodes are complete, the new, better compressed video will be in the 'output' folder and the original source MKV will be in the 'completed-originals' folder. After you've confirmed subtitles and audio tracks are correct, you can safely delete the large original file.
+6. Enjoy your new, much smaller MKV in your favorite media player.
+
+## Build manually
+    git clone https://github.com/Excape/tested-transcoder.git
+    cd tested-transcoder
+    docker build -t excape/tested-transcoder .
