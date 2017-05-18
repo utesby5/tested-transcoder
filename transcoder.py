@@ -36,9 +36,9 @@ class Transcoder(object):
     # directory contained the compressed outputs
     OUTPUT_DIRECTORY = TRANSCODER_ROOT + '/output'
     # standard options for the transcode-video script
-    TRANSCODE_OPTIONS = '--no-auto-burn'
+    TRANSCODE_OPTIONS = '--mp4 --no-auto-burn'
     # default quality preset for the transcode-video script
-    TRANSCODE_DEFAULT_PRESET = 'medium'
+    TRANSCODE_DEFAULT_PRESET = 'quick'
     # number of seconds a file must remain unmodified in the INPUT_DIRECTORY
     # before it is considered done copying. increase this value for more
     # tolerance on bad network connections.
@@ -236,7 +236,7 @@ class Transcoder(object):
 
     def transcode(self, path, crop, meta):
         name = os.path.basename(path)
-        output_name = os.path.splitext(name)[0] + '.mkv'
+        output_name = os.path.splitext(name)[0] + '.mp4'
         output = os.path.join(self.WORK_DIRECTORY, output_name)
         # if these paths exist in the work directory, remove them first
         for workpath in (output, output + '.log'):
