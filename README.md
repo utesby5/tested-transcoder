@@ -1,3 +1,7 @@
+# FORK OF DOCKERIZED TESTED-TRANSCODER BY EXCAPE #
+https://github.com/excape/tested-transcoder/
+Forked to add --mp4 and quick settings
+
 # tested-transcoder (Dockerized)
 ## --- THIS IS A BETA RELEASE --
 
