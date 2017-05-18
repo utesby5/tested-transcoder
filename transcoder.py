@@ -234,7 +234,7 @@ class Transcoder(object):
 
     def transcode(self, path, crop, meta):
         name = os.path.basename(path)
-        output_name = os.path.splitext(name)[0] + '.mkv'
+        output_name = os.path.splitext(name)[0] + '.mp4'
         output = os.path.join(self.WORK_DIRECTORY, output_name)
         # if these paths exist in the work directory, remove them first
         for workpath in (output, output + '.log'):
