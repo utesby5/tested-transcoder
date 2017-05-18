@@ -9,7 +9,6 @@ import signal
 import subprocess
 import sys
 import time
-import argparse
 
 
 def non_zero_min(values):
@@ -24,6 +23,8 @@ def non_zero_min(values):
 
 class Transcoder(object):
 
+    # name of the share defined in virtualbox that will contain input/output video
+    VBOX_SHARE_NAME = 'transcoder'
     # path to mount the virtual box share
     TRANSCODER_ROOT = "/media/transcoder"
     # directory containing new video to transcode
@@ -36,7 +37,7 @@ class Transcoder(object):
     # directory contained the compressed outputs
     OUTPUT_DIRECTORY = TRANSCODER_ROOT + '/output'
     # standard options for the transcode-video script
-    TRANSCODE_OPTIONS = '--mp4 --quick --no-auto-burn'
+    TRANSCODE_OPTIONS = '--mp4 --quick'
     # number of seconds a file must remain unmodified in the INPUT_DIRECTORY
     # before it is considered done copying. increase this value for more
     # tolerance on bad network connections.
@@ -70,6 +71,27 @@ class Transcoder(object):
         out = subprocess.check_output(args=args, stderr=subprocess.STDOUT)
         return out
 
+    def mount_share(self):
+        """
+        Mount the VBox share if it's not already mounted.
+        Returns True if mounted, otherwise False.
+        """
+        out = self.execute('mount')
+        if '%s type vboxsf' % self.TRANSCODER_ROOT in out:
+            return True
+        # attempt to mount
+        uid, gid = os.getuid(), os.getgid()
+        command = 'sudo mount -t vboxsf -o uid=%s,gid=%s %s %s' % (
+            uid, gid, self.VBOX_SHARE_NAME, self.TRANSCODER_ROOT)
+        try:
+            self.execute(command)
+        except subprocess.CalledProcessError as ex:
+            msg = 'Unable to mount Virtual Box Share: %s' % ex.output
+            sys.stdout.write(msg)
+            sys.stdout.flush()
+            return False
+        return True
+
     def setup_logging(self):
         self.logger = logging.getLogger('transcoder')
         self.logger.setLevel(logging.DEBUG)
@@ -85,12 +107,12 @@ class Transcoder(object):
         dirs = (self.INPUT_DIRECTORY, self.WORK_DIRECTORY,
                 self.OUTPUT_DIRECTORY, self.COMPLETED_DIRECTORY)
         if not all(map(os.path.exists, dirs)):
+            if not self.mount_share():
+                return False
             for path in dirs:
                 if not os.path.exists(path):
                     try:
                         os.mkdir(path)
-                        if (path == self.INPUT_DIRECTORY):
-                            os.chmod(path, 511) #chmod 777
                     except OSError as ex:
                         msg = 'Cannot create directory "%s": %s' % (
                             path, ex.strerror)
@@ -203,7 +225,7 @@ class Transcoder(object):
         crop_re = r'[0-9]+:[0-9]+:[0-9]+:[0-9]+'
         name = os.path.basename(path)
         self.logger.info('Detecting crop for input "%s"', name)
-        command = 'detect-crop --values-only "%s"' % path
+        command = 'detect-crop.sh --values-only "%s"' % path
         try:
             out = self.execute(command)
         except subprocess.CalledProcessError as ex:
@@ -234,7 +256,7 @@ class Transcoder(object):
 
     def transcode(self, path, crop, meta):
         name = os.path.basename(path)
-        output_name = os.path.splitext(name)[0] + '.mp4'
+        output_name = os.path.splitext(name)[0] + '.mkv'
         output = os.path.join(self.WORK_DIRECTORY, output_name)
         # if these paths exist in the work directory, remove them first
         for workpath in (output, output + '.log'):
@@ -243,11 +265,9 @@ class Transcoder(object):
                 os.unlink(workpath)
 
         command_parts = [
-            'transcode-video',
+            'transcode-video.sh',
             '--crop %s' % crop,
             self.parse_audio_tracks(meta),
-            self.parse_subtitle_tracks(meta),
-            self.parse_preset(),
             self.TRANSCODE_OPTIONS,
             '--output "%s"' % output,
             '"%s"' % path
@@ -263,21 +283,6 @@ class Transcoder(object):
             return None
         self.logger.info('Transcoding completed for input "%s"', name)
         return output
-
-    def parse_subtitle_tracks(self, meta):
-        pos = meta.find('+ subtitle tracks:')
-        track_re = r'^\s+\+\s(?P<track>[0-9]+),\s(?P<language>[^\(\n]*)'
-        # language may be useful for some kind of filter
-        subtitle_tracks = []
-        for line in meta[pos:].split('\n')[1:]:
-            if line.startswith('HandBrake'):
-                break
-            match = re.match(track_re, line)
-            if match:
-                self.logger.info('Adding subtitle track #%s (%s)',
-                                 match.group(1), match.group(2).rstrip())
-                subtitle_tracks.append('--add-subtitle %s' % (match.group(1)))
-        return ' '.join(subtitle_tracks)
 
     def parse_audio_tracks(self, meta):
         "Parse the meta info for audio tracks beyond the first one"
@@ -303,8 +308,7 @@ class Transcoder(object):
                 break
             match = re.match(track_re, line)
             if match:
-                tracks.append({'number': match.group(1),
-                               'title': match.group(2).rstrip()})
+                tracks.append({'number': match.group(1), 'title': match.group(2)})
 
         # assuming there's an equal number of tracks and streams, we can
         # match up stream titles to tracks and have a nicer output
@@ -320,13 +324,11 @@ class Transcoder(object):
             title = title.replace('"', '')
             self.logger.info('Adding audio track #%s with title: %s',
                              track['number'], title)
-            additional_tracks.append('--add-audio %s="%s"' % (
+            additional_tracks.append('--add-audio %s,"%s"' % (
                 track['number'], title.replace('"', '')))
 
         return ' '.join(additional_tracks)
-        
-   
-    
+
 
 if __name__ == '__main__':
     transcoder = Transcoder()
