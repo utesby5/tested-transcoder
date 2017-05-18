@@ -36,9 +36,7 @@ class Transcoder(object):
     # directory contained the compressed outputs
     OUTPUT_DIRECTORY = TRANSCODER_ROOT + '/output'
     # standard options for the transcode-video script
-    TRANSCODE_OPTIONS = '--mp4 --no-auto-burn'
-    # default quality preset for the transcode-video script
-    TRANSCODE_DEFAULT_PRESET = 'quick'
+    TRANSCODE_OPTIONS = '--mp4 --quick --no-auto-burn'
     # number of seconds a file must remain unmodified in the INPUT_DIRECTORY
     # before it is considered done copying. increase this value for more
     # tolerance on bad network connections.
@@ -327,16 +325,7 @@ class Transcoder(object):
 
         return ' '.join(additional_tracks)
         
-    def parse_preset(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("--preset")
-        parser.add_argument("--quick", action='store_true')
-        args = parser.parse_args()
-        if (args.quick):
-            return '--quick'
-        preset = '--preset '
-        preset += args.preset if args.preset else self.TRANSCODE_DEFAULT_PRESET
-        return preset
+   
     
 
 if __name__ == '__main__':
